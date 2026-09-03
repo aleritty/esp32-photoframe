@@ -11,6 +11,7 @@
 #include <freertos/task.h>
 #include <nvs.h>
 #include <nvs_flash.h>
+#include <soc/soc_caps.h>
 #include <time.h>
 
 #if CONFIG_SOC_USB_SERIAL_JTAG_SUPPORTED
@@ -250,9 +251,14 @@ esp_err_t power_manager_init(void)
             }
             expected_wakeup_time = 0;  // Reset after checking
         }
-    } else if (wakeup_causes & (1 << ESP_SLEEP_WAKEUP_EXT1)) {
-        // ESP32-S3 only supports EXT1, check which GPIO triggered it
+    } else if (wakeup_causes & ((1 << ESP_SLEEP_WAKEUP_EXT1) | (1 << ESP_SLEEP_WAKEUP_GPIO))) {
+        // Which button GPIO triggered the wake. S3: EXT1 status mask.
+        // C3: deep-sleep GPIO wake status mask.
+#if SOC_PM_SUPPORT_EXT1_WAKEUP
         ext1_wakeup_pin_mask = esp_sleep_get_ext1_wakeup_status();
+#elif SOC_GPIO_SUPPORT_HP_PERIPH_PD_SLEEP_WAKEUP
+        ext1_wakeup_pin_mask = esp_sleep_get_gpio_wakeup_status();
+#endif
 
         if (BOARD_HAL_WAKEUP_KEY != GPIO_NUM_NC &&
             (ext1_wakeup_pin_mask & (1ULL << BOARD_HAL_WAKEUP_KEY))) {
@@ -281,7 +287,7 @@ esp_err_t power_manager_init(void)
         pin_mask |= (1ULL << BOARD_HAL_WAKEUP_KEY);
     }
     if (BOARD_HAL_ROTATE_KEY != GPIO_NUM_NC) {
-        pin_mask |= (1ULL << BOARD_HAL_ROTATE_KEY);
+        pin_mask |= (1ULL << (BOARD_HAL_ROTATE_KEY < 0 ? 0 : BOARD_HAL_ROTATE_KEY));
     }
     if (BOARD_HAL_CLEAR_KEY != GPIO_NUM_NC) {
         pin_mask |= (1ULL << (BOARD_HAL_CLEAR_KEY < 0 ? 0 : BOARD_HAL_CLEAR_KEY));
@@ -296,7 +302,10 @@ esp_err_t power_manager_init(void)
         gpio_config(&io_conf);
 
         // Hold GPIO state during deep sleep to prevent floating
-        // This prevents false EXT1 wake-ups when timer fires
+        // This prevents false EXT1 wake-ups when timer fires.
+        // On targets without EXT1 (C3), the deep-sleep GPIO wake source needs
+        // the wakeup pin left unheld, so only the internal pull-up holds it.
+#if SOC_PM_SUPPORT_EXT1_WAKEUP
         if (BOARD_HAL_WAKEUP_KEY != GPIO_NUM_NC) {
             gpio_hold_en(BOARD_HAL_WAKEUP_KEY);
         }
@@ -307,6 +316,7 @@ esp_err_t power_manager_init(void)
             gpio_hold_en(BOARD_HAL_CLEAR_KEY);
         }
         gpio_deep_sleep_hold_en();
+#endif
     }
 
     // LEDs are initialized by board_hal_init(), just set initial state
@@ -364,20 +374,26 @@ void power_manager_enter_sleep(void)
         expected_wakeup_time = now + wake_seconds;
     }
 
-    // Enable boot button and key button wake-up (ESP32-S3 only supports EXT1)
+    // Enable boot button and key button wake-up. The ESP32-S3 uses EXT1
+    // (RTC-domain, multi-pin); the ESP32-C3 has no EXT1 and uses the
+    // deep-sleep GPIO wake source instead (PicPak: the single GPIO2 button).
     uint64_t wakeup_mask = 0;
     if (BOARD_HAL_WAKEUP_KEY != GPIO_NUM_NC) {
         wakeup_mask |= (1ULL << BOARD_HAL_WAKEUP_KEY);
     }
     if (BOARD_HAL_ROTATE_KEY != GPIO_NUM_NC) {
-        wakeup_mask |= (1ULL << BOARD_HAL_ROTATE_KEY);
+        wakeup_mask |= (1ULL << (BOARD_HAL_ROTATE_KEY < 0 ? 0 : BOARD_HAL_ROTATE_KEY));
     }
     if (BOARD_HAL_CLEAR_KEY != GPIO_NUM_NC) {
         wakeup_mask |= (1ULL << (BOARD_HAL_CLEAR_KEY < 0 ? 0 : BOARD_HAL_CLEAR_KEY));
     }
 
     if (wakeup_mask != 0) {
+#if SOC_PM_SUPPORT_EXT1_WAKEUP
         esp_sleep_enable_ext1_wakeup(wakeup_mask, ESP_EXT1_WAKEUP_ANY_LOW);
+#elif SOC_GPIO_SUPPORT_HP_PERIPH_PD_SLEEP_WAKEUP
+        esp_sleep_enable_gpio_wakeup_on_hp_periph_powerdown(wakeup_mask, ESP_GPIO_WAKEUP_GPIO_LOW);
+#endif
     }
 
     // Stop WiFi cleanly before deep sleep so the MAC/PHY drains pending

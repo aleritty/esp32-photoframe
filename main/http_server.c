@@ -2099,7 +2099,7 @@ static esp_err_t processing_settings_handler(httpd_req_t *req)
         return ESP_OK;
 
     } else if (req->method == HTTP_POST) {
-        char *buf = heap_caps_malloc(req->content_len + 1, MALLOC_CAP_SPIRAM);
+        char *buf = heap_caps_malloc(req->content_len + 1, PF_CAP_LARGE);
         if (!buf) {
             httpd_resp_send_500(req);
             return ESP_FAIL;

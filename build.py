@@ -6,7 +6,7 @@ import sys
 
 # Add scripts to sys.path to import boards
 sys.path.append(os.path.join(os.path.dirname(__file__), "scripts"))
-from boards import SUPPORTED_BOARDS
+from boards import BOARD_TARGET, SUPPORTED_BOARDS
 
 BOARDS = list(SUPPORTED_BOARDS.keys())
 
@@ -69,6 +69,11 @@ def build_firmware(board, extra_args, debug=False):
     idf_base = [
         "idf.py",
         f"-DSDKCONFIG_DEFAULTS={sdkconfig_defaults}",
+        # The target chip is board-dependent (most boards are esp32s3; the
+        # PicPak is esp32c3). Setting it via -DIDF_TARGET is more reliable than
+        # CONFIG_IDF_TARGET in a defaults overlay. Switching target locally
+        # needs a --fullclean (removes sdkconfig).
+        f"-DIDF_TARGET={BOARD_TARGET[board]}",
     ]
 
     cmake_defines = [a for a in extra_args if a.startswith("-D")]

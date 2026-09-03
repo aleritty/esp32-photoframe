@@ -3,6 +3,19 @@
 
 #include <driver/gpio.h>
 
+// Heap caps for large image / decompression buffers. Boards with PSRAM
+// (every esp32s3 board) put these in SPIRAM; a no-PSRAM board (PicPak / C3)
+// has no SPIRAM heap at all, so heap_caps_malloc(MALLOC_CAP_SPIRAM) would
+// always return NULL — fall back to internal RAM instead. On S3 this expands
+// to exactly MALLOC_CAP_SPIRAM, so it is a no-op there.
+#ifndef PF_CAP_LARGE
+#if defined(CONFIG_SPIRAM)
+#define PF_CAP_LARGE MALLOC_CAP_SPIRAM
+#else
+#define PF_CAP_LARGE MALLOC_CAP_DEFAULT
+#endif
+#endif
+
 // Uncomment to debug deep sleep wake
 // #define DEBUG_DEEP_SLEEP_WAKE
 

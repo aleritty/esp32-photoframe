@@ -49,6 +49,11 @@ cd ..
 # Build for Seeed Studio reTerminal E1004 (13.3" 6-color e-paper)
 ./build.py --board seeedstudio_reterminal_e1004
 
+# Build for PicPak Tesserae (ESP32-C3, 4.2" 400x300 4-color BWRY e-paper)
+# Note: --fullclean is required when switching to/from this board — it targets
+# esp32c3 while every other board targets esp32s3.
+./build.py --board picpak --fullclean
+
 # Clean build (optional)
 ./build.py --board waveshare_photopainter_73 --fullclean
 ```

@@ -1,0 +1,8 @@
+config EP_DRIVER_UC81XX_BWRY
+    bool "E-Ink UC81xx-class 4-color BWRY (e.g. PicPak 4.2\" 400x300)"
+    help
+        Driver for UC81xx / SSD2683-class 4-colour BWRY (black/white/red/yellow)
+        e-paper panels driven directly over SPI (SCLK/MOSI/CS/DC/RST/BUSY), such
+        as the PicPak Tesserae 4.2" 400x300 panel. The panel takes a 2-bit-per-
+        pixel framebuffer; the driver repacks the 4bpp GUI_Paint nibble buffer
+        before streaming it. Native (MTP) panel waveform, ~1 MHz SPI.

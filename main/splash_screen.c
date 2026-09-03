@@ -5,6 +5,7 @@
 #include <zlib.h>
 
 #include "board_hal.h"
+#include "config.h"
 #include "epaper.h"
 #include "esp_heap_caps.h"
 #include "esp_log.h"
@@ -169,7 +170,7 @@ esp_err_t splash_screen_display(void)
     ESP_LOGI(TAG, "Loading splash screen (%dx%d)", width, height);
 
     // Allocate buffer for the e-paper image
-    uint8_t *epd_buffer = heap_caps_malloc(buf_size, MALLOC_CAP_SPIRAM);
+    uint8_t *epd_buffer = heap_caps_malloc(buf_size, PF_CAP_LARGE);
     if (!epd_buffer) {
         ESP_LOGE(TAG, "Failed to allocate display buffer");
         return ESP_ERR_NO_MEM;
@@ -237,7 +238,7 @@ esp_err_t splash_screen_display_setup_complete(const char *hostname)
 
     ESP_LOGI(TAG, "Showing setup complete screen (%dx%d)", width, height);
 
-    uint8_t *epd_buffer = heap_caps_malloc(buf_size, MALLOC_CAP_SPIRAM);
+    uint8_t *epd_buffer = heap_caps_malloc(buf_size, PF_CAP_LARGE);
     if (!epd_buffer) {
         ESP_LOGE(TAG, "Failed to allocate display buffer");
         return ESP_ERR_NO_MEM;

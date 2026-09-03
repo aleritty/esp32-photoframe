@@ -136,13 +136,25 @@ async function uploadImage(mode = "upload") {
     const targetHeight = displayHeight.value;
     // Saved/applied orientation, matching the preview (updated on save).
     const orientation = settingsStore.appliedOrientation;
-    const palette = appStore.isGrayscale
-      ? imageProcessor.makeGrayscale16({
-          blackY: settingsStore.palette?.black_y ?? 0.009,
-          whiteY: settingsStore.palette?.white_y ?? 0.65,
-          gamma: settingsStore.palette?.gamma ?? 1.42,
-        })
-      : imageProcessor.SPECTRA6;
+    let palette;
+    if (appStore.isGrayscale) {
+      palette = imageProcessor.makeGrayscale16({
+        blackY: settingsStore.palette?.black_y ?? 0.009,
+        whiteY: settingsStore.palette?.white_y ?? 0.65,
+        gamma: settingsStore.palette?.gamma ?? 1.42,
+      });
+    } else if (appStore.isBwry) {
+      // 4-colour BWRY panel: alias blue/green to white so the ditherer only
+      // picks black/white/red/yellow. createEPDGZ maps those theoretical RGBs
+      // to panel codes 0/1/2/3.
+      const s = imageProcessor.SPECTRA6;
+      palette = {
+        theoretical: { ...s.theoretical, blue: s.theoretical.white, green: s.theoretical.white },
+        perceived: { ...s.perceived, blue: s.perceived.white, green: s.perceived.white },
+      };
+    } else {
+      palette = imageProcessor.SPECTRA6;
+    }
 
     // Get scale mode and params from the preview component
     // Vue auto-unwraps refs from defineExpose, so no .value needed

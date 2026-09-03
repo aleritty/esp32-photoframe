@@ -29,7 +29,7 @@ esp_err_t display_flow_read_file(const char *path, uint8_t **out_buf, size_t *ou
         return ESP_FAIL;
     }
 
-    uint8_t *buf = heap_caps_malloc(size, MALLOC_CAP_SPIRAM);
+    uint8_t *buf = heap_caps_malloc(size, PF_CAP_LARGE);
     if (!buf) {
         fclose(fp);
         return ESP_ERR_NO_MEM;

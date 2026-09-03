@@ -88,11 +88,22 @@ menu "Board Configuration"
                 The panel rail is gated by a software-controlled load switch.
                 SD card: SPI interface.
 
+        config BOARD_DRIVER_PICPAK
+            bool "PicPak Tesserae (4.2\" 4-color BWRY, ESP32-C3)"
+            select EP_DRIVER_UC81XX_BWRY
+            help
+                Driver for the PicPak Tesserae board: an ESP32-C3 (no PSRAM)
+                driving a 4.2" 400x300 black/white/red/yellow UC81xx-class
+                e-paper panel over SPI. Single button on GPIO2 shared with the
+                battery-sense ADC; status LED on GPIO21. No SD card, no external
+                RTC or sensor. Image conversion happens in the webapp (the
+                board only renders uploaded .epdgz frames).
+
     endchoice
 
     config USE_INTERNAL_FLASH_STORAGE
         bool "Use internal flash as storage (LittleFS)"
-        default y if BOARD_DRIVER_SEEEDSTUDIO_XIAO_EE02 || BOARD_DRIVER_SEEEDSTUDIO_XIAO_EE03 || BOARD_DRIVER_SEEEDSTUDIO_XIAO_EE04 || BOARD_DRIVER_SEEEDSTUDIO_RETERMINAL_E1002 || BOARD_DRIVER_SEEEDSTUDIO_RETERMINAL_E1004
+        default y if BOARD_DRIVER_SEEEDSTUDIO_XIAO_EE02 || BOARD_DRIVER_SEEEDSTUDIO_XIAO_EE03 || BOARD_DRIVER_SEEEDSTUDIO_XIAO_EE04 || BOARD_DRIVER_SEEEDSTUDIO_RETERMINAL_E1002 || BOARD_DRIVER_SEEEDSTUDIO_RETERMINAL_E1004 || BOARD_DRIVER_PICPAK
         default n
         help
             Mounts a LittleFS partition from internal flash to use as storage.

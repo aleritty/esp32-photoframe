@@ -6,6 +6,7 @@ set(PRIV_REQS
     epaper_driver_ed2208_gca
     epaper_driver_ed2208_nca
     epaper_driver_it8951
+    epaper_driver_uc81xx_bwry
     esp_driver_i2c
     esp_driver_spi
     pmic_driver_axp2101
@@ -30,6 +31,8 @@ elseif(CONFIG_BOARD_DRIVER_SEEEDSTUDIO_RETERMINAL_E1003)
     list(APPEND SRCS "src/driver_seeedstudio_reterminal_e1003.c")
 elseif(CONFIG_BOARD_DRIVER_SEEEDSTUDIO_RETERMINAL_E1004)
     list(APPEND SRCS "src/driver_seeedstudio_reterminal_e1004.c")
+elseif(CONFIG_BOARD_DRIVER_PICPAK)
+    list(APPEND SRCS "src/driver_picpak.c")
 endif()
 
 idf_component_register(

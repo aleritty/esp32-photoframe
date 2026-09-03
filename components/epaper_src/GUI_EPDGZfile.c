@@ -8,6 +8,16 @@
 
 static const char *TAG = "GUI_EPDGZfile";
 
+// Boards without PSRAM (PicPak / C3) have no SPIRAM heap; fall back to internal
+// RAM. On PSRAM boards this is exactly MALLOC_CAP_SPIRAM.
+#ifndef PF_CAP_LARGE
+#if defined(CONFIG_SPIRAM)
+#define PF_CAP_LARGE MALLOC_CAP_SPIRAM
+#else
+#define PF_CAP_LARGE MALLOC_CAP_DEFAULT
+#endif
+#endif
+
 /**
  * @brief Read EPDGZ file and display it on the e-paper display
  *
@@ -30,7 +40,7 @@ int GUI_ReadEPDGZ(const char *path)
     long compressed_size = ftell(fp);
     fseek(fp, 0, SEEK_SET);
 
-    uint8_t *compressed_data = heap_caps_malloc(compressed_size, MALLOC_CAP_SPIRAM);
+    uint8_t *compressed_data = heap_caps_malloc(compressed_size, PF_CAP_LARGE);
     if (!compressed_data) {
         ESP_LOGE(TAG, "Failed to allocate memory for compressed data");
         fclose(fp);
@@ -43,7 +53,7 @@ int GUI_ReadEPDGZ(const char *path)
     int height = Paint.Height;
     int uncompressed_size = (width * height + 1) / 2;
 
-    uint8_t *uncompressed_data = heap_caps_malloc(uncompressed_size, MALLOC_CAP_SPIRAM);
+    uint8_t *uncompressed_data = heap_caps_malloc(uncompressed_size, PF_CAP_LARGE);
     if (!uncompressed_data) {
         ESP_LOGE(TAG, "Failed to allocate memory for decompressed data");
         heap_caps_free(compressed_data);

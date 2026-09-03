@@ -56,5 +56,15 @@
     "resolution": [1200, 1600],
     "storage": "SD (SPI) + Internal flash",
     "url": "https://www.seeedstudio.com/reTerminal-E1004-p-6692.html"
+  },
+  {
+    "id": "picpak",
+    "label": "PicPak Tesserae",
+    "display": "4.2\" 4-color BWRY",
+    "resolution": [400, 300],
+    "display_type": "bwry",
+    "target": "esp32c3",
+    "storage": "Internal flash",
+    "url": "https://github.com/varanu5/picpak-tesserae-client"
   }
 ]

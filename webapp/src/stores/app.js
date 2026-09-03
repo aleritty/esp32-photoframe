@@ -53,6 +53,9 @@ export const useAppStore = defineStore("app", () => {
   // controls (saturation, 6-color palette calibration).
   const isGrayscale = computed(() => (systemInfo.value.display_type || "").startsWith("gc"));
 
+  // 4-colour BWRY panels (PicPak): dither against black/white/red/yellow only.
+  const isBwry = computed(() => (systemInfo.value.display_type || "") === "bwry");
+
   // Actions
   async function loadBatteryStatus() {
     try {
@@ -266,6 +269,7 @@ export const useAppStore = defineStore("app", () => {
     sortedAlbums,
     currentAlbumImages,
     isGrayscale,
+    isBwry,
     // Actions
     loadBatteryStatus,
     loadAlbums,

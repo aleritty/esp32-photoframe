@@ -1,0 +1,22 @@
+# PicPak Tesserae (ESP32-C3, 4.2" 400x300 4-color BWRY panel)
+#
+# Layered on top of the base sdkconfig.defaults, which targets esp32s3 with
+# octal PSRAM. build.py also passes -DIDF_TARGET=esp32c3 (see boards.json
+# "target"); a --fullclean is required when switching target locally.
+
+CONFIG_BOARD_DRIVER_PICPAK=y
+CONFIG_IDF_TARGET="esp32c3"
+
+# Flash: 16 MB usable (32 MB part). Internal-flash LittleFS storage — the C3
+# has no PSRAM for a RAM filesystem and no SD card.
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE="16MB"
+CONFIG_USE_INTERNAL_FLASH_STORAGE=y
+
+# The C3 has no PSRAM. Turning CONFIG_SPIRAM off drops the octal-PSRAM knobs
+# the base file sets (they are esp32s3-only). Large image buffers fall back to
+# internal RAM via PF_CAP_LARGE; on-device JPEG/PNG decode is not used on this
+# board — the webapp uploads an already-packed .epdgz.
+CONFIG_SPIRAM=n
+
+# QIO flash mode from the base file is fine on the C3.

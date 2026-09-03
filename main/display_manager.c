@@ -117,7 +117,7 @@ esp_err_t display_manager_init(void)
     image_buffer_size = ((BOARD_HAL_DISPLAY_WIDTH % 2 == 0) ? (BOARD_HAL_DISPLAY_WIDTH / 2)
                                                             : (BOARD_HAL_DISPLAY_WIDTH / 2 + 1)) *
                         BOARD_HAL_DISPLAY_HEIGHT;
-    epd_image_buffer = (uint8_t *) heap_caps_malloc(image_buffer_size, MALLOC_CAP_SPIRAM);
+    epd_image_buffer = (uint8_t *) heap_caps_malloc(image_buffer_size, PF_CAP_LARGE);
     if (!epd_image_buffer) {
         ESP_LOGE(TAG, "Failed to allocate image buffer");
         return ESP_FAIL;
@@ -292,7 +292,7 @@ esp_err_t display_manager_push_rgb_row(int y, const uint8_t *rgb_row, int width)
 static voidpf zalloc_psram(voidpf opaque, uInt items, uInt size)
 {
     (void) opaque;
-    return heap_caps_malloc((size_t) items * size, MALLOC_CAP_SPIRAM);
+    return heap_caps_malloc((size_t) items * size, PF_CAP_LARGE);
 }
 
 static void zfree_psram(voidpf opaque, voidpf address)
@@ -324,8 +324,8 @@ static esp_err_t display_save_frame_epdgz(const char *path)
         return ESP_FAIL;
     }
 
-    uint8_t *row = (uint8_t *) heap_caps_malloc(row_bytes, MALLOC_CAP_SPIRAM);
-    uint8_t *out = (uint8_t *) heap_caps_malloc(chunk, MALLOC_CAP_SPIRAM);
+    uint8_t *row = (uint8_t *) heap_caps_malloc(row_bytes, PF_CAP_LARGE);
+    uint8_t *out = (uint8_t *) heap_caps_malloc(chunk, PF_CAP_LARGE);
 
     z_stream strm = {0};
     strm.zalloc = zalloc_psram;

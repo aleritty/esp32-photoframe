@@ -108,8 +108,11 @@ Configure your API keys in **Settings > AI Generation**.
 | [Seeed Studio reTerminal E1002](https://www.seeedstudio.com/reTerminal-E1002-p-6533.html) | 7.3" 6-color | SD card (SPI) + Internal flash | `seeedstudio_reterminal_e1002` |
 | [Seeed Studio reTerminal E1003](https://www.seeedstudio.com/reTerminal-E1003-p-6731.html) | 10.3" 16-level grayscale | SD card (SPI) + Internal flash | `seeedstudio_reterminal_e1003` |
 | [Seeed Studio reTerminal E1004](https://www.seeedstudio.com/reTerminal-E1004-p-6692.html) | 13.3" 6-color | SD card (SPI) + Internal flash | `seeedstudio_reterminal_e1004` |
+| [PicPak Tesserae](https://github.com/varanu5/picpak-tesserae-client) | 4.2" 4-color BWRY | Internal flash | `picpak` |
 
 The reTerminal E1002, E1003, and E1004 also include a SHT40 temperature/humidity sensor, PCF8563 RTC, and battery monitoring. The XIAO EE03 has a SHT40 sensor and battery monitoring as well (but no RTC).
+
+The **PicPak** is an ESP32-C3 (not S3) with no PSRAM. Because on-device image decoding needs more RAM than the C3 has, image conversion for this board happens entirely in the webapp (which uploads an already-packed `.epdgz` frame); the auto-rotate-from-URL feature is not available on the PicPak. It has one button (GPIO2, shared with the battery ADC) and detects USB power only from a PC (like the XIAO boards).
 
 ### Button Functions
 
